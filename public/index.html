@@ -1,0 +1,88 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Check Skroutz</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+
+<body>
+  <h1>Τιμές Skroutz</h1>
+  <span>Barcode:</span>
+  <input id='barcode' type="text" placeholder="Barcode">
+  <button onclick="total()">Αναζήτηση</button>
+  <br>
+  <br>
+  <div id='message'></div>
+  <br>
+  <div id="title"></div>
+  <div id='results'>
+    <table id='price-table'>
+      <tr id='row1'></tr>
+      <tr id='row2'></tr>
+      <tr id='row3'></tr>
+      <tr id='row4'></tr>
+      <tr id='row5'></tr>
+      <tr id='row6'></tr>
+      <tr id='row7'></tr>
+      <tr id='row8'></tr>
+      <tr id='row9'></tr>
+      <tr id='row10'></tr>
+    </table>
+  </div>
+  <script>
+    function total() {
+      const barcode = document.getElementById('barcode').value;
+      document.getElementById('message').textContent = 'Αναζήτηση...';
+      for (let cell of document.getElementsByTagName('tr')) {
+        cell.innerHTML = ''
+      }
+      document.getElementById('title').innerHTML=''
+      searchBarcode(barcode);
+    }
+
+    async function searchBarcode(barcode) {
+      const data = {
+        barcode
+      };
+      const options = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      }
+      const response = await fetch('/check', options);
+      const result = await response.json();
+      document.getElementById('message').innerHTML = result.title;
+      if (result.obj) {
+        const keys = Object.keys(result.obj);
+        document.getElementById('message').innerHTML = '';
+        await createP(result.title);
+        await createTable(keys, result.obj);
+      }
+    }
+
+    async function createTable(keys, results) {
+      let num = 0;
+      while (num < 30) {
+        for (i = 0; i < 10; i++) {
+          if (num % 10 == i) {
+            let row = `row${i+1}`;
+            document.getElementById(row).innerHTML += `<td class='key'>${keys[num]}</td>`
+            document.getElementById(row).innerHTML += `<td>${results[num+1]}</td>`
+          }
+        }
+        num++;
+      }
+    }
+    async function createP(title) {
+      let para = `<p>${title}</p>`;
+      let element = document.getElementById('title');
+      element.innerHTML += para
+    }
+  </script>
+</body>
+
+</html>
